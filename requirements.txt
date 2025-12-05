@@ -1,0 +1,7 @@
+apache-airflow==2.10.3
+pyspark==3.5.3
+confluent-kafka==2.5.0
+minio==7.2.9
+pandas==2.2.3
+pyarrow==19.0.0
+fastparquet==2024.2.0
