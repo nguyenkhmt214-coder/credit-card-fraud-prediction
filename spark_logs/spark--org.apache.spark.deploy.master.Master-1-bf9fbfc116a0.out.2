@@ -1,0 +1,61 @@
+Spark Command: /opt/java/openjdk/bin/java -cp /opt/spark/conf:/opt/spark/jars/* -Xmx1g org.apache.spark.deploy.master.Master --host bf9fbfc116a0 --port 7077 --webui-port 8080
+========================================
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+25/12/09 09:31:20 INFO Master: Started daemon with process name: 16@bf9fbfc116a0
+25/12/09 09:31:20 INFO SignalUtils: Registering signal handler for TERM
+25/12/09 09:31:20 INFO SignalUtils: Registering signal handler for HUP
+25/12/09 09:31:20 INFO SignalUtils: Registering signal handler for INT
+25/12/09 09:31:22 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+25/12/09 09:31:23 INFO SecurityManager: Changing view acls to: root
+25/12/09 09:31:23 INFO SecurityManager: Changing modify acls to: root
+25/12/09 09:31:23 INFO SecurityManager: Changing view acls groups to: 
+25/12/09 09:31:23 INFO SecurityManager: Changing modify acls groups to: 
+25/12/09 09:31:23 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: root; groups with view permissions: EMPTY; users with modify permissions: root; groups with modify permissions: EMPTY
+25/12/09 09:31:24 INFO Utils: Successfully started service 'sparkMaster' on port 7077.
+25/12/09 09:31:24 INFO Master: Starting Spark master at spark://bf9fbfc116a0:7077
+25/12/09 09:31:24 INFO Master: Running Spark version 3.5.1
+25/12/09 09:31:25 INFO JettyUtils: Start Jetty 0.0.0.0:8080 for MasterUI
+25/12/09 09:31:25 INFO Utils: Successfully started service 'MasterUI' on port 8080.
+25/12/09 09:31:25 INFO MasterWebUI: Bound MasterWebUI to 0.0.0.0, and started at http://bf9fbfc116a0:8080
+25/12/09 09:31:26 INFO Master: I have been elected leader! New state: ALIVE
+25/12/09 09:31:27 INFO Master: Registering worker 172.18.0.8:41059 with 4 cores, 1024.0 MiB RAM
+25/12/09 09:31:27 INFO Master: Registering worker 172.18.0.9:46589 with 4 cores, 1024.0 MiB RAM
+25/12/09 09:38:26 INFO Master: Registering app stream_user_profile_to_minio_duckdb
+25/12/09 09:38:26 INFO Master: Registered app stream_user_profile_to_minio_duckdb with ID app-20251209093826-0000
+25/12/09 09:38:26 INFO Master: Start scheduling for app app-20251209093826-0000 with rpId: 0
+25/12/09 09:38:26 INFO Master: Launching executor app-20251209093826-0000/0 on worker worker-20251209093124-172.18.0.8-41059
+25/12/09 09:38:26 INFO Master: Launching executor app-20251209093826-0000/1 on worker worker-20251209093124-172.18.0.9-46589
+25/12/09 09:38:26 INFO Master: Start scheduling for app app-20251209093826-0000 with rpId: 0
+25/12/09 09:38:26 INFO Master: Start scheduling for app app-20251209093826-0000 with rpId: 0
+25/12/09 09:38:33 INFO Master: Received unregister request from application app-20251209093826-0000
+25/12/09 09:38:33 INFO Master: Removing app app-20251209093826-0000
+25/12/09 09:38:34 INFO Master: 172.18.0.6:54066 got disassociated, removing it.
+25/12/09 09:38:34 INFO Master: bf9fbfc116a0:34825 got disassociated, removing it.
+25/12/09 09:38:34 WARN Master: Got status update for unknown executor app-20251209093826-0000/0
+25/12/09 09:38:34 WARN Master: Got status update for unknown executor app-20251209093826-0000/1
+25/12/09 09:41:11 INFO Master: Registering app stream_user_profile_to_minio_duckdb
+25/12/09 09:41:11 INFO Master: Registered app stream_user_profile_to_minio_duckdb with ID app-20251209094111-0001
+25/12/09 09:41:11 INFO Master: Start scheduling for app app-20251209094111-0001 with rpId: 0
+25/12/09 09:41:11 INFO Master: Launching executor app-20251209094111-0001/0 on worker worker-20251209093124-172.18.0.8-41059
+25/12/09 09:41:11 INFO Master: Launching executor app-20251209094111-0001/1 on worker worker-20251209093124-172.18.0.9-46589
+25/12/09 09:41:11 INFO Master: Start scheduling for app app-20251209094111-0001 with rpId: 0
+25/12/09 09:41:11 INFO Master: Start scheduling for app app-20251209094111-0001 with rpId: 0
+25/12/09 09:42:14 INFO Master: Received unregister request from application app-20251209094111-0001
+25/12/09 09:42:14 INFO Master: Removing app app-20251209094111-0001
+25/12/09 09:42:15 INFO Master: 172.18.0.6:60672 got disassociated, removing it.
+25/12/09 09:42:15 INFO Master: bf9fbfc116a0:36219 got disassociated, removing it.
+25/12/09 09:42:15 WARN Master: Got status update for unknown executor app-20251209094111-0001/0
+25/12/09 09:42:15 WARN Master: Got status update for unknown executor app-20251209094111-0001/1
+25/12/09 09:42:50 INFO Master: Registering app stream_user_profile_to_minio_duckdb
+25/12/09 09:42:50 INFO Master: Registered app stream_user_profile_to_minio_duckdb with ID app-20251209094250-0002
+25/12/09 09:42:50 INFO Master: Start scheduling for app app-20251209094250-0002 with rpId: 0
+25/12/09 09:42:50 INFO Master: Launching executor app-20251209094250-0002/0 on worker worker-20251209093124-172.18.0.8-41059
+25/12/09 09:42:50 INFO Master: Launching executor app-20251209094250-0002/1 on worker worker-20251209093124-172.18.0.9-46589
+25/12/09 09:42:50 INFO Master: Start scheduling for app app-20251209094250-0002 with rpId: 0
+25/12/09 09:42:50 INFO Master: Start scheduling for app app-20251209094250-0002 with rpId: 0
+25/12/09 09:57:39 INFO Master: Received unregister request from application app-20251209094250-0002
+25/12/09 09:57:39 INFO Master: Removing app app-20251209094250-0002
+25/12/09 09:57:39 INFO Master: 172.18.0.6:37580 got disassociated, removing it.
+25/12/09 09:57:39 INFO Master: bf9fbfc116a0:39503 got disassociated, removing it.
+25/12/09 09:57:39 WARN Master: Got status update for unknown executor app-20251209094250-0002/1
+25/12/09 09:57:39 WARN Master: Got status update for unknown executor app-20251209094250-0002/0

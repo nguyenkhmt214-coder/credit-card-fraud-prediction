@@ -13,6 +13,8 @@ volumes:
   kafka_1_data:     # Lưu log segment + metadata cho broker 1
   kafka_2_data:     # Lưu log segment + metadata cho broker 2
   airflow_data:     # Airflow DB + cấu trúc workspace nếu cần
+  redis_data:
+  grafana_data:
 # ===================================================================
 
 services:
@@ -209,6 +211,7 @@ services:
     mem_limit: 2048m
 
 
+
   # ================================================================
   # 4) AIRFLOW — chạy bằng SQLite (dev mode)
   # ================================================================
@@ -232,3 +235,39 @@ services:
     networks:
       - data-net
     mem_limit: 1500m
+
+
+  # ================================================================
+  # 5) REDIS — lightweight cache / message store
+  # ================================================================
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: ["redis-server", "--save", "20", "1", "--loglevel", "warning"]
+    ports:
+      - "6379:6379"
+    networks:
+      - data-net
+    mem_limit: 256m
+    volumes:
+      - redis_data:/data
+
+
+
+  # ================================================================
+  # 6) GRAFANA — dashboard cho monitoring
+  # ================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: "redis-datasource"
+    networks:
+      - data-net
+    mem_limit: 512m
+    volumes:
+      - grafana_data:/var/lib/grafana
