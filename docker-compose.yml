@@ -171,7 +171,7 @@ services:
       - ./app:/opt/workspace/app
     networks:
       - data-net
-    mem_limit: 2048m
+    mem_limit: 3072m   # từ 2G → 3G
 
 
   spark-worker-1:
@@ -184,12 +184,12 @@ services:
     command: >
       bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
     environment:
-      SPARK_WORKER_MEMORY: "1G" # RAM Spark được phép dùng
+      SPARK_WORKER_MEMORY: "1400m"   # từ 1G → 1.5G (tăng vừa phải) RAM Spark được phép dùng
     volumes:
       - ./app:/opt/workspace/app
     networks:
       - data-net
-    mem_limit: 2048m
+    mem_limit: 3072m                # docker limit ≥ worker_memory + overhead
 
 
   spark-worker-2:
@@ -203,38 +203,38 @@ services:
     command: >
       bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
     environment:
-      SPARK_WORKER_MEMORY: "1G"
+      SPARK_WORKER_MEMORY: "1400m"
     volumes:
       - ./app:/opt/workspace/app
     networks:
       - data-net
-    mem_limit: 2048m
+    mem_limit: 3072m
 
 
 
   # ================================================================
   # 4) AIRFLOW — chạy bằng SQLite (dev mode)
   # ================================================================
-  airflow:
-    build: ./docker/airflow
-    image: airflow-custom
-    container_name: airflow
-    command: standalone
-    environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
-      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
-      _AIRFLOW_WWW_USER_CREATE: "true"
-      _AIRFLOW_WWW_USER_USERNAME: "admin"
-      _AIRFLOW_WWW_USER_PASSWORD: "admin"
-    ports:
-      - "8081:8080"  # UI: http://localhost:8081
-    volumes:
-      - ./airflow:/opt/airflow
-      - ./app:/opt/workspace/app
-    networks:
-      - data-net
-    mem_limit: 1500m
+  # airflow:
+  #   build: ./docker/airflow
+  #   image: airflow-custom
+  #   container_name: airflow
+  #   command: standalone
+  #   environment:
+  #     AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+  #     AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+  #     AIRFLOW__CORE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+  #     _AIRFLOW_WWW_USER_CREATE: "true"
+  #     _AIRFLOW_WWW_USER_USERNAME: "admin"
+  #     _AIRFLOW_WWW_USER_PASSWORD: "admin"
+  #   ports:
+  #     - "8081:8080"  # UI: http://localhost:8081
+  #   volumes:
+  #     - ./airflow:/opt/airflow
+  #     - ./app:/opt/workspace/app
+  #   networks:
+  #     - data-net
+  #   mem_limit: 1500m
 
 
   # ================================================================

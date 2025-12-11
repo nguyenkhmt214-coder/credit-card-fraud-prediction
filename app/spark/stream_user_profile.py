@@ -33,6 +33,13 @@ schema = StructType([
 ])
 
 spark = (SparkSession.builder.appName("User_To_Redis")
+
+    .config("spark.executor.cores", "1")
+    .config("spark.executor.instances", "1")
+    .config("spark.executor.memory", "512m")
+    .config("spark.executor.memoryOverhead", "128m")
+
+
     .config("spark.hadoop.fs.s3a.endpoint", MINIO_ENDPOINT)
     .config("spark.hadoop.fs.s3a.access.key", "admin")
     .config("spark.hadoop.fs.s3a.secret.key", "password123")
@@ -79,3 +86,6 @@ def write_user_redis(batch_df, batch_id):
 
 (df.writeStream.foreachBatch(write_user_redis).outputMode("append")
  .option("checkpointLocation", f"s3a://fraud/checkpoints/user_redis/").start().awaitTermination())
+
+
+ 

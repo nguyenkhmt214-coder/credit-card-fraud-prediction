@@ -44,32 +44,74 @@ def send_to_kafka(topic, value, key=None):
 
 
 # =========================
-# Main loop — push data
+# Main loop — push data with different speeds
 # =========================
+
 if __name__ == "__main__":
+
+    # Counters to control send frequency
+    tick = 0
+
     while True:
         bundle = generate_bundle()
 
-        # LOG bundle tổng thể
         print("\n========== GENERATED BUNDLE ==========")
         print(json.dumps(bundle, indent=2))
         print("======================================\n")
 
-        send_to_kafka("user_profile",
-                      bundle["user_profile"],
-                      key=bundle["user_profile"]["party_id"])
+        # ------------------------------------------
+        # 1) USER_PROFILE → gửi mỗi 1 giây
+        # ------------------------------------------
+        if tick % 1 == 0:
+            send_to_kafka(
+                "user_profile",
+                bundle["user_profile"],
+                key=bundle["user_profile"]["party_id"]
+            )
+            print(">>> Sent → user_profile")
 
-        # send_to_kafka("card_account",
-        #               bundle["card_account"],
-        #               key=bundle["card_account"]["card_ref"])
+        # ------------------------------------------
+        # 2) MERCHANT_PROFILE → gửi mỗi 3 giây
+        # ------------------------------------------
+        if tick % 3 == 0:
+            send_to_kafka(
+                "merchant_profile",
+                bundle["merchant_profile"],
+                key=bundle["merchant_profile"]["merchant_id"]
+            )
+            print(">>> Sent → merchant_profile")
 
-        # send_to_kafka("merchant_profile",
-        #               bundle["merchant_profile"],
-        #               key=bundle["merchant_profile"]["merchant_id"])
+        # ------------------------------------------
+        # 3) CARD_ACCOUNT → gửi mỗi 5 giây
+        # ------------------------------------------
+        if tick % 5 == 0:
+            send_to_kafka(
+                "card_account",
+                bundle["card_account"],
+                key=bundle["card_account"]["card_ref"]
+            )
+            print(">>> Sent → card_account")
 
-        # send_to_kafka("card_txn_auth",
-        #               bundle["card_txn_auth"],
-        #               key=bundle["card_txn_auth"]["card_ref"])
+        # ------------------------------------------
+        # 4) CARD_TXN_AUTH → gửi mỗi 8 giây (chậm nhất)
+        # ------------------------------------------
+        if tick % 8 == 0:
+            send_to_kafka(
+                "card_txn_auth",
+                bundle["card_txn_auth"],
+                key=bundle["card_txn_auth"]["card_ref"]
+            )
+            print(">>> Sent → card_txn_auth (slowest)")
 
-        print(">>> Sent 4 events → Kafka\n")
-        time.sleep(5)
+        print(f">>> Completed tick {tick}\n")
+
+        tick += 1
+        time.sleep(1)      # 1 tick = 1 giây
+
+
+# | Topic            | Tốc độ gửi     | Giải thích                      |
+# | ---------------- | -------------- | ------------------------------- |
+# | user_profile     | **mỗi 1 giây** | nhanh nhất                      |
+# | merchant_profile | **mỗi 3 giây** | trung bình                      |
+# | card_account     | **mỗi 5 giây** | chậm hơn                        |
+# | card_txn_auth    | **mỗi 8 giây** | **chậm nhất**                   |

@@ -16,6 +16,9 @@ schema = StructType([
 ])
 
 spark = (SparkSession.builder.appName("Card_To_Redis")
+    .config("spark.executor.cores", "1")
+    .config("spark.executor.instances", "1")
+    
     .config("spark.hadoop.fs.s3a.endpoint", MINIO_ENDPOINT)
     .config("spark.hadoop.fs.s3a.access.key", "admin")
     .config("spark.hadoop.fs.s3a.secret.key", "password123")
