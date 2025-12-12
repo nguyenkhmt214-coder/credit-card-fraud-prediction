@@ -192,23 +192,23 @@ services:
     mem_limit: 3072m                # docker limit ≥ worker_memory + overhead
 
 
-  spark-worker-2:
-    # build: ./docker/spark
-    image: apache/spark:3.5.1
-    user: root # thêm vào để pip install lúc vào container của spark
+  # spark-worker-2:
+  #   # build: ./docker/spark
+  #   image: apache/spark:3.5.1
+  #   user: root # thêm vào để pip install lúc vào container của spark
 
-    container_name: spark-worker-2
-    depends_on:
-      - spark-master
-    command: >
-      bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
-    environment:
-      SPARK_WORKER_MEMORY: "1400m"
-    volumes:
-      - ./app:/opt/workspace/app
-    networks:
-      - data-net
-    mem_limit: 3072m
+  #   container_name: spark-worker-2
+  #   depends_on:
+  #     - spark-master
+  #   command: >
+  #     bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
+  #   environment:
+  #     SPARK_WORKER_MEMORY: "1400m"
+  #   volumes:
+  #     - ./app:/opt/workspace/app
+  #   networks:
+  #     - data-net
+  #   mem_limit: 3072m
 
 
 

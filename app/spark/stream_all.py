@@ -6,17 +6,18 @@ from pyspark.sql.functions import col, from_json
 from pyspark.sql.types import (
     StructType, StructField, StringType, IntegerType, DoubleType
 )
+from datetime import datetime   # ★ THÊM
 
-# ============================================================
-# CONFIG
-# ============================================================
+# ============================
+#  CONFIG
+# ============================
 KAFKA_SERVERS = "kafka-1:9092,kafka-2:9092"
 MINIO_ENDPOINT = "http://minio:9000"
 REDIS_HOST = "redis"
 
-# ============================================================
-# 🔥 SPARK SESSION (dùng lại config cũ, NOT TOUCH)
-# ============================================================
+# ============================
+#  SPARK SESSION
+# ============================
 spark = (
     SparkSession.builder
         .appName("All_Streams")
@@ -34,9 +35,9 @@ spark = (
 
 spark.sparkContext.setLogLevel("WARN")
 
-# ============================================================
-# USER STREAM
-# ============================================================
+# ============================
+#  USER STREAM
+# ============================
 
 CITY_MASTER = {
     "VN-HCM-01": {"city": "Ho Chi Minh City", "lat": 10.7769, "long": 106.7009, "pop": 9000000},
@@ -109,9 +110,9 @@ user_q = (
         .start()
 )
 
-# ============================================================
-# MERCHANT STREAM
-# ============================================================
+# ============================
+#  MERCHANT STREAM
+# ============================
 
 merch_schema = StructType([
     StructField("event_id", StringType()),
@@ -160,9 +161,9 @@ merch_q = (
         .start()
 )
 
-# ============================================================
-# CARD STREAM
-# ============================================================
+# ============================
+#  CARD STREAM
+# ============================
 
 card_schema = StructType([
     StructField("event_id", StringType()),
@@ -207,9 +208,9 @@ card_q = (
         .start()
 )
 
-# ============================================================
-# TRANSACTION STREAM
-# ============================================================
+# ============================
+#  TRANSACTION STREAM
+# ============================
 
 txn_schema = StructType([
     StructField("event_id", StringType()),
@@ -232,30 +233,79 @@ txn_df = (
         .select("data.*")
 )
 
+# ============================================================
+# ★★★ THÊM – HÀM PREDICT MOCK MODEL
+# ============================================================
+def predict(amount, merchant_cat):
+    """
+    Fake model: random predict fraud / non-fraud.
+    Return:
+        (pred_label, probability_score)
+    """
+    pred_label = random.randint(0, 1)
+    probability = random.random()
+    return pred_label, probability
+
+# ============================================================
+# ★★★ BỔ SUNG HOÀN CHỈNH VÀO process_and_join()
+# ============================================================
 def process_and_join(batch_df, batch_id):
-    if batch_df.isEmpty():
+    print(f"[TXN] Batch {batch_id} received")
+
+    row_count = batch_df.count()
+    print(f"[TXN] Batch {batch_id} → Row count = {row_count}")
+
+    if row_count == 0:
+        print(f"[TXN] Batch {batch_id} → EMPTY, SKIP\n")
         return
 
     pdf = batch_df.toPandas()
+    print(f"[TXN] PDF converted, rows = {len(pdf)}")
+
     r = redis.Redis(host=REDIS_HOST, decode_responses=True)
+    pipe = r.pipeline()
+
+    KEY_DASH_STATS = "dashboard:stats"
+    KEY_DASH_CAT   = "dashboard:categories"
+    KEY_DASH_PROB  = "dashboard:probs"
+    KEY_DASH_GAUGE = "dashboard:gauge_5min"
 
     for _, row in pdf.iterrows():
-        card_info = r.hgetall(f"c:{row['card_ref']}")
-        if not card_info:
-            continue
+        print(f"[TXN] Processing event_id={row['event_id']} amount={row['amount_minor']}")
 
-        user = r.hgetall(f"u:{card_info['party_id']}")
         merch = r.hgetall(f"m:{row['merchant_ref']}")
+        print(f"[TXN] Merchant lookup: {merch}")
 
-        simulated_fraud = 1 if random.random() < 0.1 else 0
+        pred_label, prob = predict(row["amount_minor"], merch.get("category", "unknown"))
+        print(f"[TXN] Predict → label={pred_label}, prob={prob}")
 
-        # Metrics for Grafana
-        r.incr("total_transactions")
-        if simulated_fraud == 1:
-            r.incr("total_fraud_transactions")
-        r.set("latest_transaction_amount", float(row["amount_minor"]) / 100.0)
+        if pred_label == 1:
+            event_json = f'{{"id":"{row["event_id"]}", "amt":{row["amount_minor"]/100}, "ts":"{row["event_ts"]}"}}'
+            pipe.lpush("fraud_events", event_json)
+            pipe.ltrim("fraud_events", 0, 49)
 
-    print(f"[TXN] Batch {batch_id} → {len(pdf)} rows")
+            pipe.incr(KEY_DASH_GAUGE)
+            pipe.expire(KEY_DASH_GAUGE, 300)
+
+        bucket_field = f"bucket_{int(prob * 10)}"
+        pipe.hincrby(KEY_DASH_PROB, bucket_field, 1)
+
+        pipe.hincrby(KEY_DASH_STATS, "total_txns", 1)
+
+        if pred_label == 1:
+            pipe.hincrby(KEY_DASH_STATS, "total_fraud", 1)
+
+            day_key = datetime.utcfromtimestamp(row["event_epoch_sec"]).strftime("%Y%m%d")
+            pipe.incrbyfloat(f"blocked_amt:{day_key}", row["amount_minor"] / 100.0)
+
+        category = merch.get("category", "Unknown")
+        if pred_label == 1:
+            pipe.hincrby(KEY_DASH_CAT, category, 1)
+
+    pipe.execute()
+    print(f"[TXN] Batch {batch_id} → FINISHED UPDATE\n")
+
+
 
 txn_q = (
     txn_df.writeStream
@@ -265,7 +315,7 @@ txn_q = (
         .start()
 )
 
-# ============================================================
-# WAIT FOR ALL STREAMS
-# ============================================================
+# ============================
+#  WAIT FOR ALL STREAMS
+# ============================
 txn_q.awaitTermination()
