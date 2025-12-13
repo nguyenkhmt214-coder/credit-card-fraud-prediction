@@ -1,0 +1,343 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_REDIS",
+      "label": "Redis",
+      "description": "Select Redis datasource",
+      "type": "datasource",
+      "pluginId": "redis-datasource",
+      "pluginName": "Redis"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "redis-datasource",
+      "name": "Redis",
+      "version": "1.9.0"
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Real-time Fraud Gauge (Last 5 Minutes)",
+      "type": "gauge",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 50,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 10 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:fraud",
+          "query": "TS.RANGE ts:txn:fraud - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Fraud Transactions Over Time",
+      "type": "timeseries",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Fraud Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "options": {
+        "legend": { "calcs": ["mean", "last", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:fraud",
+          "query": "TS.RANGE ts:txn:fraud - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Total Transactions (5m)",
+      "type": "stat",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "blue", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:count",
+          "query": "TS.RANGE ts:txn:count - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Fraud Count (5m)",
+      "type": "stat",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:fraud",
+          "query": "TS.RANGE ts:txn:fraud - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Predicted Fraud (5m)",
+      "type": "stat",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "orange", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:pred",
+          "query": "TS.RANGE ts:txn:pred - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Transaction Amount (5m)",
+      "type": "stat",
+      "datasource": {
+        "type": "redis-datasource",
+        "uid": "${DS_REDIS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "type": "timeSeries",
+          "command": "ts.range",
+          "keyName": "ts:txn:amount_minor",
+          "query": "TS.RANGE ts:txn:amount_minor - + AGGREGATION sum 5000",
+          "aggregation": "sum",
+          "bucket": 5000,
+          "rawQuery": true
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["fraud", "realtime"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "Real-time Fraud Detection Dashboard",
+  "uid": "fraud-detection",
+  "version": 0,
+  "weekStart": ""
+}

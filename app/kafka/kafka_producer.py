@@ -44,7 +44,7 @@ def send_to_kafka(topic, value, key=None):
 
 
 # =========================
-# Main loop — push data with different speeds
+# Main loop — push data with faster speeds
 # =========================
 
 if __name__ == "__main__":
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         print("======================================\n")
 
         # ------------------------------------------
-        # 1) USER_PROFILE → gửi mỗi 1 giây
+        # 1) USER_PROFILE → ~mỗi 0.2 giây
         # ------------------------------------------
         if tick % 1 == 0:
             send_to_kafka(
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             print(">>> Sent → user_profile")
 
         # ------------------------------------------
-        # 2) MERCHANT_PROFILE → gửi mỗi 3 giây
+        # 2) MERCHANT_PROFILE → ~mỗi 0.6 giây
         # ------------------------------------------
         if tick % 3 == 0:
             send_to_kafka(
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             print(">>> Sent → merchant_profile")
 
         # ------------------------------------------
-        # 3) CARD_ACCOUNT → gửi mỗi 5 giây
+        # 3) CARD_ACCOUNT → ~mỗi 1.0 giây
         # ------------------------------------------
         if tick % 5 == 0:
             send_to_kafka(
@@ -93,7 +93,7 @@ if __name__ == "__main__":
             print(">>> Sent → card_account")
 
         # ------------------------------------------
-        # 4) CARD_TXN_AUTH → gửi mỗi 8 giây (chậm nhất)
+        # 4) CARD_TXN_AUTH → ~mỗi 1.6 giây (chậm nhất)
         # ------------------------------------------
         if tick % 8 == 0:
             send_to_kafka(
@@ -106,12 +106,13 @@ if __name__ == "__main__":
         print(f">>> Completed tick {tick}\n")
 
         tick += 1
-        time.sleep(1)      # 1 tick = 1 giây
+        time.sleep(0.2)    # 1 tick ~ 0.2 giây → nhanh hơn
 
 
-# | Topic            | Tốc độ gửi     | Giải thích                      |
-# | ---------------- | -------------- | ------------------------------- |
-# | user_profile     | **mỗi 1 giây** | nhanh nhất                      |
-# | merchant_profile | **mỗi 3 giây** | trung bình                      |
-# | card_account     | **mỗi 5 giây** | chậm hơn                        |
-# | card_txn_auth    | **mỗi 8 giây** | **chậm nhất**                   |
+# Tick duration: 0.2s
+# | Topic            | Tốc độ gửi       | Giải thích                      |
+# | ---------------- | ---------------- | ------------------------------- |
+# | user_profile     | ~mỗi 0.2 giây    | nhanh nhất                      |
+# | merchant_profile | ~mỗi 0.6 giây    | trung bình                      |
+# | card_account     | ~mỗi 1.0 giây    | chậm hơn                        |
+# | card_txn_auth    | ~mỗi 1.6 giây    | **chậm nhất**                   |
